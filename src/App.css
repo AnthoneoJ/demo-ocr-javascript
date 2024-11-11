@@ -57,6 +57,11 @@
   height: 240px;
 }
 
+/* Apply horizontal flip when .flipped is active */
+.webcam.flipped {
+  transform: scaleX(-1);
+}
+
 .controls {
   display: flex;
   flex-direction: column;
