@@ -7,6 +7,7 @@ function App() {
   const [ocrText, setOcrText] = useState("");
   const [isOcrActive, setIsOcrActive] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [ocrDelay, setOcrDelay] = useState(1000); // Default delay in ms
   const webcamRef = useRef(null);
   const tesseractWorkerRef = useRef(null);
 
@@ -62,9 +63,9 @@ function App() {
         }
       }
 
-      // Schedule the next OCR operation after 0.25 seconds, if OCR is still active
+      // Schedule the next OCR operation after ocrDelay ms, if OCR is still active
       if (isOcrActive) {
-        ocrTimeout = setTimeout(performOcr, 250);
+        ocrTimeout = setTimeout(performOcr, ocrDelay);
       }
     };
 
@@ -75,7 +76,13 @@ function App() {
 
     // Clear the timeout when OCR is stopped or component is unmounted
     return () => clearTimeout(ocrTimeout);
-  }, [isOcrActive]);
+  }, [isOcrActive, ocrDelay]); // Depend on ocrDelay to update interval dynamically
+
+  // Handle delay input change
+  const handleDelayChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    setOcrDelay(isNaN(value) ? 1000 : value); // Default to 1000ms if input is invalid
+  };
 
   return (
     <div className="App">
@@ -99,6 +106,21 @@ function App() {
           <button onClick={toggleFlip}>
             {isFlipped ? "Unflip Camera" : "Flip Camera"}
           </button>
+
+          {/* OCR Delay Input */}
+          <div className="ocr-delay">
+            <label>
+              OCR Delay (ms):
+              <input
+                type="number"
+                value={ocrDelay}
+                onChange={handleDelayChange}
+                min="100" // Minimum delay of 100ms to avoid excessive requests
+              />
+            </label>
+          </div>
+
+          {/* OCR Output */}
           <div className="ocr-output">
             <h2>OCR Output:</h2>
             <p>{ocrText}</p>
